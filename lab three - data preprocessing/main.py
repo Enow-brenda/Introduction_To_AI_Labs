@@ -35,9 +35,6 @@ def clean_data(data):
         data['Parch'].fillna(0, inplace=True)
         data['SibSp'].fillna(0, inplace=True)
 
-        #replacing 'Mlle.' with 'Ms.' to standardize titles
-        data['Title'] = data['Title'].replace({'Mlle.': 'Ms.'})
-
         return data
 
 
