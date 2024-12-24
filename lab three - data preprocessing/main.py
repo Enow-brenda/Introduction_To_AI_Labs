@@ -35,8 +35,6 @@ def clean_data(data):
         data['Parch'].fillna(0, inplace=True)
         data['SibSp'].fillna(0, inplace=True)
 
-        #replacing 'Mlle.' with 'Ms.' to standardize titles
-        data['Title'] = data['Title'].replace({'Mlle.': 'Ms.'})
 
         return data
 
@@ -49,21 +47,29 @@ data = clean_data(data)
 
 #handling outliers in fare and age
 sns.boxplot(data=data, x='Fare')
-plt.title("Box Plot for Fare")
+plt.title("Box Plot for Fare ")
 plt.show()
 
 sns.boxplot(data=data, x='Age')
-plt.title("Box Plot for Age")
+plt.title("Box Plot for Age ")
 plt.show()
 
 columns_to_cap = ['Fare', 'Age']  # List of columns to cap
 
-#removing outliers using capping
+# Check statistics before capping
+print("Before capping - Fare statistics:\n", data['Fare'].describe())
+print("Before capping - Age statistics:\n", data['Age'].describe())
+
+# Apply capping
 for col in columns_to_cap:
     lower_limit = data[col].quantile(0.01)
     upper_limit = data[col].quantile(0.99)
     data[col] = np.where(data[col] < lower_limit, lower_limit, data[col])
     data[col] = np.where(data[col] > upper_limit, upper_limit, data[col])
+
+# Check statistics after capping
+print("After capping - Fare statistics:\n", data['Fare'].describe())
+print("After capping - Age statistics:\n", data['Age'].describe())
 
 #data normalization using z
 scaler = StandardScaler()
