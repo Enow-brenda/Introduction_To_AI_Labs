@@ -35,7 +35,10 @@ def clean_data(data):
         data['Parch'].fillna(0, inplace=True)
         data['SibSp'].fillna(0, inplace=True)
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 4a95886a353a2d5153e3c3170d0ae552d1650e95
         return data
 
 
