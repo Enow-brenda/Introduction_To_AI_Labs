@@ -134,7 +134,8 @@ def cluster_and_visualize(X_reduced, distance_metric='euclidean'):
     clusterer = hdbscan.HDBSCAN(
         min_cluster_size=3,  # Minimum size of clusters
         min_samples=2,  # Minimum samples in the neighborhood of a point
-        metric=distance_metric  # Distance metric
+        metric=distance_metric , # Distance metric
+        cluster_selection_method = 'leaf'
     )
 
     # Apply HDBSCAN
@@ -196,7 +197,7 @@ new_image_pca = pca2.transform(new_image_scaled)  # Apply PCA
 X_combined = np.vstack([X_reduced, new_image_pca])
 
 # Fit the HDBSCAN model on the combined dataset (including the new image)
-clusterer = hdbscan.HDBSCAN(min_cluster_size=3, min_samples=2, metric='euclidean')
+clusterer = hdbscan.HDBSCAN(min_cluster_size=3, min_samples=2, metric='euclidean',cluster_selection_method='leaf')
 new_cluster_labels = clusterer.fit_predict(X_combined)
 
 
@@ -271,11 +272,12 @@ for i in range(num_clusters):
 # Display the representative images for each cluster
 print("Representative images : ",representative_images)
 print("Representative indices : ",representative_index)
-
-fig, ax = plt.subplots(1, len(representative_index), figsize=(12, 8))
+fig, ax = plt.subplots(1, len(representative_index), figsize=(10, 6))
 for i, index in enumerate(representative_index):
     original_image = images[index]
-    plt.imshow(original_image.reshape(250,250), cmap='gray') # Show grayscale images
+    # Ensure the images are resized to 250x250 before flattening
+    resized_image = resize_image(original_image, target_size=(250, 250))
+    ax[i].imshow(resized_image, cmap='gray') # Show grayscale images
     ax[i].set_title(labels[index])
     ax[i].axis('off')
 plt.show()
