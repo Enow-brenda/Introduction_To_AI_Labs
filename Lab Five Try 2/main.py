@@ -99,13 +99,45 @@ model.add(Dense(1, activation='linear'))  # Regression task (traffic flow predic
 learning_rate = 0.001
 optimizer = Adam(learning_rate=learning_rate)  # Use the Adam optimizer from tf.keras.optimizers
 model.compile(optimizer=optimizer, loss='mean_squared_error',metrics=['accuracy','mae'])
-
+model.summary()
 
 # Train the model
 history = model.fit(X_train, y_train, epochs=20, batch_size=32, validation_split=0.1)
 
 # Evaluate the model
 loss,accuracy,mae = model.evaluate(X_test, y_test)
+
+# Extract data from the history object
+epochs = range(1, len(history.history['loss']) + 1)
+train_loss = history.history['loss']
+val_loss = history.history['val_loss']
+train_mae = history.history['mae']
+val_mae = history.history['val_mae']
+
+# Plot Loss
+plt.figure(figsize=(12, 5))
+plt.subplot(1, 2, 1)
+plt.plot(epochs, train_loss, label='Training Loss', marker='o')
+plt.plot(epochs, val_loss, label='Validation Loss', marker='s')
+plt.xlabel('Epoch')
+plt.ylabel('Loss')
+plt.title('Loss vs Epoch')
+plt.legend()
+plt.grid(True)
+
+# Plot MAE
+plt.subplot(1, 2, 2)
+plt.plot(epochs, train_mae, label='Training MAE', marker='o', color='blue')
+plt.plot(epochs, val_mae, label='Validation MAE', marker='s', color='red')
+plt.xlabel('Epoch')
+plt.ylabel('Mean Absolute Error (MAE)')
+plt.title('MAE vs Epoch')
+plt.legend()
+plt.grid(True)
+
+# Show the plots
+plt.tight_layout()
+plt.show()
 
 print(f'Model Accuracy: {accuracy}')
 print(f'Model Loss: {loss}')
@@ -183,12 +215,18 @@ plt.title('Temperature vs Traffic Flow')
 plt.xlabel('Temperature')
 plt.ylabel('Traffic Flow')
 
+
 plt.subplot(3, 1, 2)
 plt.scatter(data['humidity'], data['traffic_flow'], alpha=0.5)
 plt.title('Humidity vs Traffic Flow')
 plt.xlabel('Humidity')
 plt.ylabel('Traffic Flow')
 
+plt.subplot(3, 1, 3)
+plt.scatter(data['rain'], data['traffic_flow'], alpha=0.5)
+plt.title('Rainy vs Traffic Flow')
+plt.xlabel('Rainy')
+plt.ylabel('Traffic Flow')
 
 plt.tight_layout()
 plt.show()
