@@ -7,6 +7,8 @@ import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
 from sklearn.metrics import euclidean_distances
 from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import silhouette_score
+
 
 images = []
 labels = []
@@ -109,6 +111,7 @@ clusterer = hdbscan.HDBSCAN(
 # Apply HDBSCAN
 cluster_labels = clusterer.fit_predict(X_reduced)
 
+
 # Extracting meaningful clusters
 unique_labels = set(cluster_labels)
 n_clusters = len(np.unique(cluster_labels[cluster_labels != -1]))
@@ -156,15 +159,20 @@ def cluster_and_visualize(X_reduced, distance_metric='euclidean'):
 # 2. Clustering on Clean Data (Euclidean Distance)
 print("Clustering on Clean Data (Euclidean Distance)")
 cluster_labels_clean = cluster_and_visualize(X_reduced, distance_metric='euclidean')
+euclidean_clean_silhoute_score  = silhouette_score(X_reduced,cluster_labels_clean)
 
 # 3. Clustering on Noisy Data (Euclidean Distance)
 print("Clustering on Noisy Data (Euclidean Distance)")
 cluster_labels_noisy = cluster_and_visualize(X_reduced_noisy, distance_metric='euclidean')
+euclidean_noisy_silhoute_score  = silhouette_score(X_reduced,cluster_labels_noisy)
 
 # 4. Clustering on Clean Data (Manhattan Distance)
 print("Clustering on Clean Data (Manhattan Distance)")
 cluster_labels_clean_manhattan = cluster_and_visualize(X_reduced, distance_metric='manhattan')
+manhattan_clean_silhoute_score  = silhouette_score(X_reduced,cluster_labels_clean_manhattan)
 
+
+print("Silhoute Scores \n Euclidean Distance Without Noise :" ,euclidean_clean_silhoute_score, "\nEuclidean Distance With Noise : ",euclidean_noisy_silhoute_score,"\nManhattan Distance Without Noise : " ,manhattan_clean_silhoute_score)
 # 5. Clustering on Noisy Data (Manhattan Distance)
 print("Clustering on Noisy Data (Manhattan Distance)")
 cluster_labels_noisy_manhattan = cluster_and_visualize(X_reduced_noisy, distance_metric='manhattan')
@@ -199,8 +207,9 @@ X_combined = np.vstack([X_reduced, new_image_pca])
 # Fit the HDBSCAN model on the combined dataset (including the new image)
 clusterer = hdbscan.HDBSCAN(min_cluster_size=3, min_samples=2, metric='euclidean',cluster_selection_method='leaf')
 new_cluster_labels = clusterer.fit_predict(X_combined)
+euclidean_after_silhoute_score  = silhouette_score(X_combined,new_cluster_labels)
 
-
+print("Silhoute after Adding new Image : ",euclidean_after_silhoute_score)
 new_image_cluster = new_cluster_labels[-1]
 print(f"Cluster label for the new image: {new_image_cluster}")
 
