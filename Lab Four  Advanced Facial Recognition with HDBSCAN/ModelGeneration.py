@@ -1,38 +1,63 @@
-import os
-import cv2
 import joblib
+import cv2
 import numpy as np
 import hdbscan
 from PIL import Image
 import matplotlib.pyplot as plt
+from skimage.feature import hog, local_binary_pattern
+from sklearn.datasets import fetch_lfw_people
 from sklearn.decomposition import PCA
 from sklearn.metrics import euclidean_distances
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import silhouette_score
 
+# Load the LFW dataset
+lfw_dataset = fetch_lfw_people(min_faces_per_person=50, resize=0.4)
+images = lfw_dataset.images  # Shape: (n_samples, height, width)
+labels = lfw_dataset.target
 
-images = []
-labels = []
-dimension = set()
+# Preprocessing
+preprocess_images = []
+for img in images:
+    if len(img.shape) == 3:  # Check if the image has 3 channels
+        img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)  # Convert to grayscale
+    else:  # Image is already grayscale
+        img_gray = img
+    img_resized = cv2.resize(img_gray, (64, 64))  # Resize
+    img_normalized = img_resized / 255.0  # Normalize
+    preprocess_images.append(img_normalized)
 
-dataset_path = "ifw2"
-for label in os.listdir(dataset_path):
-    person_folder = os.path.join(dataset_path, label)
-    if os.path.isdir(person_folder):
-        for image_file in os.listdir(person_folder):
-            image_path = os.path.join(person_folder, image_file)
-            image = cv2.imread(image_path)
-            image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)  # Convert to grayscale
-            images.append(image)
-            dimension.add(image.shape)
-            labels.append(label)
+preprocessed_images = np.array(preprocess_images)
+
+'''
+
+Step 2: Feature Extraction
+Extract features from each image using handcrafted techniques (since you cannot use neural networks):
+Edge Detection: Use algorithms like Sobel or Canny to extract edges (important for face detection).
+Histogram of Oriented Gradients (HOG): A popular feature extraction technique for object detection.
+Local Binary Patterns (LBP): Captures texture patterns in an image, helpful for face identification.'''
+def extract_features(images):
+    features = []
+    for img in images:
+        # Extract HOG features
+        hog_features = hog(img, pixels_per_cell=(8, 8), cells_per_block=(2, 2), visualize=False)
+        # Extract LBP features
+        lbp = local_binary_pattern(img, P=8, R=1, method='uniform')
+        lbp_hist = np.histogram(lbp.ravel(), bins=np.arange(0, 27), density=True)[0]
+        # Combine features
+        combined_features = np.hstack((hog_features, lbp_hist))
+        features.append(combined_features)
+    return np.array(features)
+
+features = extract_features(preprocessed_images)
+print("features: ",features)
+
 
 # Converting the image list into numpy array
 X = np.array(images)
 y = np.array(labels)
 
 print("Number of images: ", X.size)
-print("Dimension: ", dimension)
 print("Labels: ", labels[:5])
 
 # Displaying first 5 images
