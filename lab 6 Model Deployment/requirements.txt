@@ -1,9 +1,5 @@
 numpy
-pandas
-matplotlib
-seaborn
 scikit-learn
-hdbscan
 opencv-python
 flask
-pickle
+joblib
